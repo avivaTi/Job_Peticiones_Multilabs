@@ -80,10 +80,11 @@ namespace Aviva.Multilabs.Peticiones.Demonio.Models
             }
         }
 
-        public void grabarPeticionMultilabs(Lista_Peticiones_Multilabs peticion, string estadoCod, int estadoPk)
+        public int grabarPeticionMultilabs(Lista_Peticiones_Multilabs peticion, string estadoCod, int estadoPk)
         {
             try
             {
+                int id = 0;
                 string[] partes = peticion.Paciente.Split(' ');
 
                 string nombre1 = partes.Length > 0 ? partes[0] : "";
@@ -119,13 +120,67 @@ namespace Aviva.Multilabs.Peticiones.Demonio.Models
                 comando.Parameters.AddWithValue("@fechaPeticion", fechaFormateada);
                 comando.Parameters.AddWithValue("@userPeticion", 1);
                 conexion.Open();
-                comando.ExecuteNonQuery();
+                //comando.ExecuteNonQuery();
 
                 //Cerrando conexion
-                if (conexion.State == ConnectionState.Open)
+                //if (conexion.State == ConnectionState.Open)
+                //{
+                //    conexion.Close();
+                //}
+
+                using (SqlDataReader reader = comando.ExecuteReader())
                 {
-                    conexion.Close();
+                    while (reader.Read())
+                    {
+                        // Ejemplo
+                        id = Convert.ToInt32(reader["res"]);
+                        //string mensaje = reader["mensaje"].ToString();
+                    }
                 }
+
+                return id;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        public int grabarPruebaMultilabs(int idPeticion, string prueba, string homologa, string descripcion, int idEstado, string estado, string fEstado)
+        {
+            try
+            {
+                int id = 0;
+
+                string cadenaConexion =
+                    "Data Source=10.19.67.65;" +
+                    "User ID=prim;" +
+                    "Password=prim;" +
+                    "Initial Catalog=XHIS_PRD;" +
+                    "MultipleActiveResultSets=True;";
+                SqlConnection conexion = new SqlConnection(cadenaConexion);
+                SqlCommand comando = new SqlCommand("[dbo].[aviva_insertarExamenes_Unilabs] @idPeticion , @prueba, @homologa, @descripcion, @idEstado, @estado, @festado", conexion);
+                //comando.CommandType = CommandType.StoredProcedure;
+                comando.Parameters.AddWithValue("@idPeticion", idPeticion);
+                comando.Parameters.AddWithValue("@prueba", prueba);
+                comando.Parameters.AddWithValue("@homologa", homologa);
+                comando.Parameters.AddWithValue("@descripcion", descripcion);
+                comando.Parameters.AddWithValue("@idEstado", idEstado);
+                comando.Parameters.AddWithValue("@estado", estado);
+                comando.Parameters.AddWithValue("@festado", fEstado);
+
+                conexion.Open();
+
+                using (SqlDataReader reader = comando.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        // Ejemplo
+                        id = 1;                    }
+                }
+
+                return id;
             }
             catch (Exception ex)
             {

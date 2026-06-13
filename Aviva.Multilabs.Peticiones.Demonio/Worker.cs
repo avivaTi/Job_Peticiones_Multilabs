@@ -63,25 +63,26 @@ namespace Aviva.Multilabs.Peticiones.Demonio
 
             foreach (var registro in listaPeticiones)
             {
-                int cantidadRegistros = obtenerDatosMultilabs(registro.Fecha, registro.DNI);
+                Root cantidadRegistros = obtenerDatosMultilabs(registro.Fecha, registro.DNI);
 
-                if (cantidadRegistros == 1)
+                if (cantidadRegistros.atenciones.Count > 0)
                 {
                     //Registrar en tabla de UNILABS
                     _logger.LogInformation($" {contador} : En multilabs para orden { registro.DNI } fecha { registro.Fecha } centroId {registro.SedeId} ");
-                    data.grabarPeticionMultilabs(registro,"R",2);
+                    int correlativo = data.grabarPeticionMultilabs(registro,"R",2);
+                    var detalle = obtenerDetalleMultilabs(cantidadRegistros.atenciones[0].cod_atencion, correlativo, cantidadRegistros.atenciones[0].fecha_publicacion, cantidadRegistros.atenciones[0].estado_lab);
                 }
                 else
                 {
                     _logger.LogInformation($" {contador} : No está en multilabs para orden { registro.DNI } fecha { registro.Fecha } centroId {registro.SedeId} ");
-                    data.grabarPeticionMultilabs(registro, "P", 1);
+                    int correlativo = data.grabarPeticionMultilabs(registro, "P", 1);
                 }
 
                 contador++;
             }
         }
 
-        public int obtenerDatosMultilabs(string fechaAtencion, string documento)
+        public Root obtenerDatosMultilabs(string fechaAtencion, string documento)
         {
             try
             {
@@ -123,7 +124,12 @@ namespace Aviva.Multilabs.Peticiones.Demonio
 
                 Root data2 = JsonConvert.DeserializeObject<Root>(res);
 
-                var resultado = data2.atenciones.FirstOrDefault(x => (x.fecha_atencion ?? "").Trim() == fechaFormateada.Trim() && (x.doc_identidad ?? "").Trim() == documento.Trim() );
+                //var resultado = data2.atenciones.FirstOrDefault(x => (x.fecha_atencion ?? "").Trim() == fechaFormateada.Trim() && (x.doc_identidad ?? "").Trim() == documento.Trim() );
+
+                Root resultado = new Root
+                {
+                    atenciones = data2.atenciones.Where(x => (x.fecha_atencion ?? "").Trim() == fechaFormateada && (x.doc_identidad ?? "").Trim() == documento.Trim()).Take(1).ToList()
+                };
 
                 if (resultado == null)
                 {
@@ -134,13 +140,69 @@ namespace Aviva.Multilabs.Peticiones.Demonio
                     cantidadRegistros = 1;
                 }
 
-                return cantidadRegistros;
+                return resultado;
             }
             catch (Exception ex)
             {
-
+                _logger.LogInformation($" Error al obtener  SUMMARY Multilabs : {ex.Message}");
                 throw;
             }
+        }
+
+        public MultilabsResponse obtenerDetalleMultilabs(string codAtencion, int correlativo, string fechaPublicacion, string estadoPrueba)
+        {
+            MultilabsResponse respuesta = new MultilabsResponse();
+            try
+            {
+                DataMultilabs data = new DataMultilabs();
+                string urlBase = "https://api.multilab.com.pe/tp/";
+                string endpointDetalle = "detail";
+                string uri = $"{urlBase}{endpointDetalle}";
+
+                string token = getAccessToken();
+
+                var body = new
+                {
+                    cod = codAtencion
+                };
+
+                string json = JsonConvert.SerializeObject(body);
+
+                _logger.LogInformation($" JsonCreate para obtener DETAIL Multilabs");
+                HttpClient client = new HttpClient();
+
+                HttpContent contentCreate = new StringContent(json, Encoding.UTF8, "application/json");
+
+                HttpRequestMessage requestCreate = new HttpRequestMessage(HttpMethod.Post, uri);
+                requestCreate.Headers.Add("Authorization", "Bearer " + token);
+                requestCreate.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                requestCreate.Content = contentCreate;
+
+                HttpResponseMessage response = client.SendAsync(requestCreate).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string res = response.Content.ReadAsStringAsync().Result;
+
+                    MultilabsResponse data2 = JsonConvert.DeserializeObject<MultilabsResponse>(res);
+
+                    foreach (var item in data2.detalle)
+                    {
+                        string estado = estadoPrueba == "PUBLICADO" ? "I" : estadoPrueba == "PUBLICACION PARCIAL" ? "V" : "";
+                        int idEstado = estadoPrueba == "PUBLICADO" ? 2 : estadoPrueba == "PUBLICACION PARCIAL" ? 1 : 0;
+
+                        int valor = data.grabarPruebaMultilabs(correlativo, item.codExamen, item.codExamen, item.examenes, idEstado, estado, fechaPublicacion);
+
+                    }
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($" Error al obtener  DETAIL Multilabs : {ex.Message}");
+                throw;
+            }
+            return respuesta;
         }
 
 
