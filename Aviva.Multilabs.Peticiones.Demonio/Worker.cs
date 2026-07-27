@@ -63,19 +63,19 @@ namespace Aviva.Multilabs.Peticiones.Demonio
 
             foreach (var registro in listaPeticiones)
             {
-                Root cantidadRegistros = obtenerDatosMultilabs(registro.Fecha, registro.DNI);
+                Root cantidadRegistros = obtenerDatosMultilabs(registro.Fecha, registro.Numero_de_orden);
 
                 if (cantidadRegistros.atenciones.Count > 0)
                 {
                     //Registrar en tabla de UNILABS
-                    _logger.LogInformation($" {contador} : En multilabs para orden { registro.DNI } fecha { registro.Fecha } centroId {registro.SedeId} ");
-                    int correlativo = data.grabarPeticionMultilabs(registro,"R",2);
-                    var detalle = obtenerDetalleMultilabs(cantidadRegistros.atenciones[0].cod_atencion, correlativo, cantidadRegistros.atenciones[0].fecha_publicacion, cantidadRegistros.atenciones[0].estado_lab);
+                    _logger.LogInformation($" {contador} : En multilabs para orden, documento:  { registro.DNI } fecha { registro.Fecha } centroId {registro.SedeId} codigo alianza {registro.Numero_de_orden} ");
+                    int correlativo = data.grabarPeticionMultilabs(registro,"R",2, cantidadRegistros.atenciones[0].fecha_recepcion_solicitud);
+                    var detalle = obtenerDetalleMultilabs(cantidadRegistros.atenciones[0].cod_atencion, correlativo, cantidadRegistros.atenciones[0].fecha_recepcion_solicitud, cantidadRegistros.atenciones[0].estado_lab);
                 }
                 else
                 {
-                    _logger.LogInformation($" {contador} : No está en multilabs para orden { registro.DNI } fecha { registro.Fecha } centroId {registro.SedeId} ");
-                    int correlativo = data.grabarPeticionMultilabs(registro, "P", 1);
+                    _logger.LogInformation($" {contador} : No está en multilabs para orden, documento: { registro.DNI } fecha { registro.Fecha } centroId {registro.SedeId} codigo alianza {registro.Numero_de_orden} ");
+                    int correlativo = data.grabarPeticionMultilabs(registro, "P", 1,"");
                 }
 
                 contador++;
@@ -128,7 +128,8 @@ namespace Aviva.Multilabs.Peticiones.Demonio
 
                 Root resultado = new Root
                 {
-                    atenciones = data2.atenciones.Where(x => (x.fecha_atencion ?? "").Trim() == fechaFormateada && (x.doc_identidad ?? "").Trim() == documento.Trim()).Take(1).ToList()
+                    //atenciones = data2.atenciones.Where(x => (x.fecha_atencion ?? "").Trim() == fechaFormateada && (x.doc_identidad ?? "").Trim() == documento.Trim()).Take(1).ToList()
+                    atenciones = data2.atenciones.Where(x => (x.fecha_atencion ?? "").Trim() == fechaFormateada && (x.cod_alianza ?? "").Trim() == documento.Trim()).Take(1).ToList()
                 };
 
                 if (resultado == null)

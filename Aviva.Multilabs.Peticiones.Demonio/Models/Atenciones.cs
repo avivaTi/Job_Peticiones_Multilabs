@@ -11,6 +11,7 @@ namespace Aviva.Multilabs.Peticiones.Demonio.Models
         public string fecha_atencion { get; set; }
         public string cod_atencion { get; set; }
         public string cod_externo { get; set; }
+        public string cod_alianza { get; set; }
         public string nombres { get; set; }
         public string apellidos { get; set; }
         public string tipo_doc { get; set; }
@@ -21,6 +22,7 @@ namespace Aviva.Multilabs.Peticiones.Demonio.Models
         public int examenes_total { get; set; }
         public int examenes_completados { get; set; }
         public string fecha_toma_muestra { get; set; }
+        public string fecha_recepcion_solicitud { get; set; }
     }
 
     public class Root

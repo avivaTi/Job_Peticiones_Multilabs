@@ -80,7 +80,7 @@ namespace Aviva.Multilabs.Peticiones.Demonio.Models
             }
         }
 
-        public int grabarPeticionMultilabs(Lista_Peticiones_Multilabs peticion, string estadoCod, int estadoPk)
+        public int grabarPeticionMultilabs(Lista_Peticiones_Multilabs peticion, string estadoCod, int estadoPk, string fechaPeticion)
         {
             try
             {
@@ -91,11 +91,15 @@ namespace Aviva.Multilabs.Peticiones.Demonio.Models
                 string nombre2 = partes.Length > 1 ? partes[1] : "";
                 string apellido1 = partes.Length > 2 ? partes[2] : "";
                 string apellido2 = partes.Length > 3 ? partes[3] : "";
+                string fecha = "";
+                string fechaFormateada = "";
 
-                string fecha = peticion.Fecha; // 21/05/2026
-                string fechaFormateada = DateTime
-                    .ParseExact(fecha, "dd/MM/yyyy", CultureInfo.InvariantCulture)
-                    .ToString("yyyy-MM-dd");
+                if (fechaPeticion == "")
+                {
+                    fecha = peticion.Fecha; // 21/05/2026
+                    fechaFormateada = DateTime.ParseExact(fecha, "dd/MM/yyyy", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd");
+                    fechaPeticion = fechaFormateada;
+                }               
 
                 string cadenaConexion =
                     "Data Source=10.19.67.65;" +
@@ -117,7 +121,7 @@ namespace Aviva.Multilabs.Peticiones.Demonio.Models
                 comando.Parameters.AddWithValue("@numDocum", peticion.DNI);
                 comando.Parameters.AddWithValue("@estadoPdf", estadoCod);
                 comando.Parameters.AddWithValue("@idEstadoPdf", estadoPk);
-                comando.Parameters.AddWithValue("@fechaPeticion", fechaFormateada);
+                comando.Parameters.AddWithValue("@fechaPeticion", fechaPeticion);
                 comando.Parameters.AddWithValue("@userPeticion", 1);
                 conexion.Open();
                 //comando.ExecuteNonQuery();
