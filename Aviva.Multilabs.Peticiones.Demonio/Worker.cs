@@ -70,7 +70,11 @@ namespace Aviva.Multilabs.Peticiones.Demonio
                     //Registrar en tabla de UNILABS
                     _logger.LogInformation($" {contador} : En multilabs para orden, documento:  { registro.DNI } fecha { registro.Fecha } centroId {registro.SedeId} codigo alianza {registro.Numero_de_orden} ");
                     int correlativo = data.grabarPeticionMultilabs(registro,"R",2, cantidadRegistros.atenciones[0].fecha_recepcion_solicitud);
-                    var detalle = obtenerDetalleMultilabs(cantidadRegistros.atenciones[0].cod_atencion, correlativo, cantidadRegistros.atenciones[0].fecha_recepcion_solicitud, cantidadRegistros.atenciones[0].estado_lab);
+                    if (cantidadRegistros.atenciones[0].estado_lab != "EN ESPERA")
+                    {
+                        var detalle = obtenerDetalleMultilabs(cantidadRegistros.atenciones[0].cod_atencion, correlativo, cantidadRegistros.atenciones[0].fecha_recepcion_solicitud, cantidadRegistros.atenciones[0].estado_lab);
+                    }
+                    
                 }
                 else
                 {
