@@ -44,7 +44,7 @@ namespace Aviva.Multilabs.Peticiones.Demonio.Models
                             var item = new Lista_Peticiones_Multilabs
                             {
                                 Numero_de_orden = dr["Numero_de_orden"] as string ?? string.Empty,
-                                Estado = dr["Estado"] as string ?? string.Empty,
+                                //Estado = dr["Estado"] as string ?? string.Empty,
                                 encuentro = dr["encuentro"] != DBNull.Value ? Convert.ToInt32(dr["encuentro"]) : 0,
                                 codigo_cliente = dr["codigo_cliente"] != DBNull.Value ? Convert.ToInt32(dr["codigo_cliente"]) : 0,
                                 Historia_clinica = dr["Historia_clinica"] as string ?? string.Empty,
@@ -52,17 +52,17 @@ namespace Aviva.Multilabs.Peticiones.Demonio.Models
                                 DNI = dr["DNI"] as string ?? string.Empty,
                                 Sexo = dr["Sexo"] as string ?? string.Empty,
                                 Edad = dr["Edad"] != DBNull.Value ? Convert.ToInt32(dr["Edad"]) : 0,
-                                Procedimiento = dr["Procedimiento"] as string ?? string.Empty,
+                                //Procedimiento = dr["Procedimiento"] as string ?? string.Empty,
                                 Servicio = dr["Servicio"] as string ?? string.Empty,
                                 Ubicacion = dr["Ubicacion"] as string ?? string.Empty,
                                 Prioridad = dr["Prioridad"] as string ?? string.Empty,
                                 Fecha = dr["Fecha"] as string ?? string.Empty,
                                 Hora = dr["Hora"] as string ?? string.Empty,
                                 Tiempo_de_Espera = dr["Tiempo_de_Espera"] as string ?? string.Empty,
-                                Peticion = dr["Peticion"] != DBNull.Value ? Convert.ToInt32(dr["Peticion"]) : 0,
-                                Catalogo = dr["Catalogo"] != DBNull.Value ? Convert.ToInt32(dr["Catalogo"]) : 0,
-                                Estado_Muestra = dr["Estado_Muestra"] as string ?? string.Empty,
-                                Comentarios = dr["Comentarios"] as string ?? string.Empty,
+                                //Peticion = dr["Peticion"] != DBNull.Value ? Convert.ToInt32(dr["Peticion"]) : 0,
+                                //Catalogo = dr["Catalogo"] != DBNull.Value ? Convert.ToInt32(dr["Catalogo"]) : 0,
+                                //Estado_Muestra = dr["Estado_Muestra"] as string ?? string.Empty,
+                                //Comentarios = dr["Comentarios"] as string ?? string.Empty,
                                 SedeId = dr["SedeId"] != DBNull.Value ? Convert.ToInt32(dr["SedeId"]) : 0,
                             };
 

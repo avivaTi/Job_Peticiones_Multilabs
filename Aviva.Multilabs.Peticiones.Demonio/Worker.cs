@@ -67,12 +67,19 @@ namespace Aviva.Multilabs.Peticiones.Demonio
 
                 if (cantidadRegistros.atenciones.Count > 0)
                 {
+                    int correlativo = 0;
                     //Registrar en tabla de UNILABS
                     _logger.LogInformation($" {contador} : En multilabs para orden, documento:  { registro.DNI } fecha { registro.Fecha } centroId {registro.SedeId} codigo alianza {registro.Numero_de_orden} ");
-                    int correlativo = data.grabarPeticionMultilabs(registro,"R",2, cantidadRegistros.atenciones[0].fecha_recepcion_solicitud);
-                    if (cantidadRegistros.atenciones[0].estado_lab != "EN ESPERA")
+                    //int correlativo = data.grabarPeticionMultilabs(registro,"R",2, cantidadRegistros.atenciones[0].fecha_recepcion_solicitud);
+                    
+                    if (cantidadRegistros.atenciones[0].estado_lab == "PUBLICADO")
                     {
-                        var detalle = obtenerDetalleMultilabs(cantidadRegistros.atenciones[0].cod_atencion, correlativo, cantidadRegistros.atenciones[0].fecha_recepcion_solicitud, cantidadRegistros.atenciones[0].estado_lab);
+                        correlativo = data.grabarPeticionMultilabs(registro, "U", 3, string.IsNullOrWhiteSpace(cantidadRegistros.atenciones[0].fecha_recepcion_solicitud) ? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") : cantidadRegistros.atenciones[0].fecha_recepcion_solicitud);
+                        var detalle = obtenerDetalleMultilabs(cantidadRegistros.atenciones[0].cod_atencion, correlativo, cantidadRegistros.atenciones[0].fecha_pactada, cantidadRegistros.atenciones[0].estado_lab);
+                    }
+                    else
+                    {
+                        correlativo = data.grabarPeticionMultilabs(registro, "R", 2, string.IsNullOrWhiteSpace(cantidadRegistros.atenciones[0].fecha_recepcion_solicitud) ? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") : cantidadRegistros.atenciones[0].fecha_recepcion_solicitud);
                     }
                     
                 }
@@ -100,10 +107,13 @@ namespace Aviva.Multilabs.Peticiones.Demonio
 
                 string token = getAccessToken();
 
+
+                var fecha = DateTime.ParseExact(fechaAtencion, "dd/MM/yyyy",System.Globalization.CultureInfo.InvariantCulture);
+
                 var body = new
                 {
-                    from = DateTime.Now.ToString("yyyy-MM-dd"),
-                    to = DateTime.Now.ToString("yyyy-MM-dd")
+                    from = fecha.ToString("yyyy-MM-dd"),
+                    to = fecha.ToString("yyyy-MM-dd")
                 };
 
                 string json = JsonConvert.SerializeObject(body);
@@ -193,8 +203,10 @@ namespace Aviva.Multilabs.Peticiones.Demonio
 
                     foreach (var item in data2.detalle)
                     {
-                        string estado = estadoPrueba == "PUBLICADO" ? "I" : estadoPrueba == "PUBLICACION PARCIAL" ? "V" : "";
-                        int idEstado = estadoPrueba == "PUBLICADO" ? 2 : estadoPrueba == "PUBLICACION PARCIAL" ? 1 : 0;
+                        //string estado = estadoPrueba == "PUBLICADO" ? "I" : estadoPrueba == "PUBLICACION PARCIAL" ? "V" : "";
+                        //int idEstado = estadoPrueba == "PUBLICADO" ? 2 : estadoPrueba == "PUBLICACION PARCIAL" ? 1 : 0;
+                        string estado = estadoPrueba == "PUBLICADO" ? "U" : estadoPrueba == "PUBLICACION PARCIAL" ? "V" : "";
+                        int idEstado = estadoPrueba == "PUBLICADO" ? 3 : estadoPrueba == "PUBLICACION PARCIAL" ? 1 : 0;
 
                         int valor = data.grabarPruebaMultilabs(correlativo, item.codExamen, item.codExamen, item.examenes, idEstado, estado, fechaPublicacion);
 

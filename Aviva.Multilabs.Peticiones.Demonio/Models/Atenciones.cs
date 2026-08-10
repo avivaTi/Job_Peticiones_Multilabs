@@ -23,6 +23,7 @@ namespace Aviva.Multilabs.Peticiones.Demonio.Models
         public int examenes_completados { get; set; }
         public string fecha_toma_muestra { get; set; }
         public string fecha_recepcion_solicitud { get; set; }
+        public string fecha_pactada { get; set; }
     }
 
     public class Root
