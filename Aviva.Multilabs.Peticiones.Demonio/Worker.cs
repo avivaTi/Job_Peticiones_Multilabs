@@ -86,7 +86,8 @@ namespace Aviva.Multilabs.Peticiones.Demonio
                 else
                 {
                     _logger.LogInformation($" {contador} : No está en multilabs para orden, documento: { registro.DNI } fecha { registro.Fecha } centroId {registro.SedeId} codigo alianza {registro.Numero_de_orden} ");
-                    int correlativo = data.grabarPeticionMultilabs(registro, "P", 1,registro.Fecha + " " + registro.Hora);
+                    //int correlativo = data.grabarPeticionMultilabs(registro, "P", 1,registro.Fecha + " " + registro.Hora);
+                    int correlativo = data.grabarPeticionMultilabs(registro, "P", 1, DateTime.ParseExact(registro.Fecha, "dd/MM/yyyy", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd") + " " + registro.Hora);
                 }
 
                 contador++;
